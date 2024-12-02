@@ -7,7 +7,7 @@ import qualified Data.List
 main :: IO ()
 main = do
 
-   {-- Part 1 [Distance] --}
+  {-- Part 1 [Distance] --}
   lines <- fmap Text.lines (Text.readFile "input.txt")
   let first  = Data.List.sort $ fmap ((read::String->Int) . Text.unpack . head . Text.words) lines
   let second = Data.List.sort $ fmap ((read::String->Int) . Text.unpack . last . Text.words) lines
@@ -19,4 +19,3 @@ main = do
 
   print distance
   print distance2
-
