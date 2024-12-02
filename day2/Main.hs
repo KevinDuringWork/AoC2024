@@ -7,6 +7,9 @@ summary :: [Int] -> (Int, Int, Int, Int)
 summary a = (sum a, sum m, minimum m, maximum m)
     where m = map abs a
 
+calcDiff :: [Int] -> [Int]
+calcDiff x = zipWith (-) (drop 1 x) x
+
 safe :: (Int, Int, Int, Int) -> Bool
 safe  (dir, mag_dir, min_step, max_step) =
     abs dir == mag_dir &&
@@ -26,26 +29,28 @@ explodeAll x = map (`explode` x) [1 .. length x]
 main :: IO ()
 main = do
     lines <- fmap Text.lines (Text.readFile "input.txt")
-    let 
+    let
+        {-- Part (1): Calculate Safety --}
         matrix = fmap (fmap ((read::String->Int) . Text.unpack) . Text.words) lines
 
         {-- Calculate changes --}
-        diff = fmap (\x -> zipWith (-) (drop 1 x) x ) matrix
+        diff = fmap calcDiff matrix
 
         {-- Summarize Changes, i.e, monotonicity, min/max steps --}
         sum_matrix = map summary diff
 
         {-- Validate Summary to "Safety" and Count --}
         safe_list = map safe sum_matrix
-        part1_answer = length (filter id safe_list)
-
+        
         {-- Part (2): Tolerate a single failure, we must go deeper --}
         matrix2 = fmap explodeAll matrix
-        diff2 = map (map (\x -> zipWith (-) (drop 1 x) x)) matrix2
+        diff2 = map (map calcDiff) matrix2
         sum_matrix2 = map (map summary) diff2
         safe_list2 = map ((not . null) . filter id . map safe) sum_matrix2
-        part2 = zip safe_list safe_list2
-        part2_answer = length (filter id $ map (uncurry (||)) part2)
+
+        {-- Calculate Answers --}
+        part1_answer = length (filter id safe_list)
+        part2_answer = length (filter id $ zipWith (||) safe_list safe_list2)
 
     print part1_answer
     print part2_answer
