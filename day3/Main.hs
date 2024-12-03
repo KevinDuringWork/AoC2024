@@ -7,38 +7,9 @@ import qualified Text.Parsec as Parsec
 import Text.Parsec ((<?>))
 import Control.Applicative
 import Control.Monad.Identity (Identity)
-import qualified System.IO.Error as Parsec
-import qualified Distribution.Compat.CharParsing as Parser
 
 parse rule = Parsec.parse rule "(source)"
 
-multP :: Parsec.Parsec String() (String, String)
-multP = do
-    Parsec.string "mul"
-    Parsec.char '('
-    op1 <- Parsec.many Parsec.digit
-    Parsec.char ','
-    op2 <- Parsec.many Parsec.digit
-    Parsec.char ')'
-    return (op1, op2)
-
-{-- Part 1 Using Parser Combinators --}
-segments1 :: Parsec.ParsecT String () Identity (String, String)
-segments1 = do
-    do Parsec.string "\\end" >> return ("0", "0")
-    <|> Parsec.try multP
-    <|> do Parsec.anyChar >> segments1
-
-searchMultP1 :: Parsec.ParsecT String () Identity [(String, String)]
-searchMultP1 = Parsec.many $ do segments1
-
-computeScore1 :: String -> String -> Int
-computeScore1 x y = x1 * y1
-    where
-        x1 = read x
-        y1 = read y
-
-{-- Part 2 Incorporating Instructions (Do and Don't) --}
 multP2 :: Parsec.Parsec String() (String, String, String)
 multP2 = do
     Parsec.string "mul"
@@ -77,12 +48,12 @@ main = do
     contents2  <- Text.readFile "example2.txt"
 
     let
-        -- Part (1) 
-        ans = parse searchMultP1 $ Text.unpack contents ++ "\\end"
+        {-- Part 1 Using Parser Combinators --}
+        ans = parse searchMultP2$ Text.unpack contents ++ "\\end"
         Right response = ans
-        part1_answer = sum $ fmap (uncurry computeScore1) response
+        part1_answer = computeScore2 "DO" response
 
-        -- Part (2) 
+        {-- Part 2 Incorporating Instructions (Do and Don't) --}
         ans2 = parse searchMultP2 $ Text.unpack contents2 ++ "\\end"
         Right response2 = ans2 
         part2_answer = computeScore2 "DO" response2 
