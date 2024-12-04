@@ -1,4 +1,8 @@
 **/input.txt
+**/*.o 
+**/*.h
+**/*.hi
+
 .token
 dist
 dist-*

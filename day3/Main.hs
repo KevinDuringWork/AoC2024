@@ -3,7 +3,7 @@
 
 import qualified Data.Text    as Text
 import qualified Data.Text.IO as Text
-import qualified Text.Parsec as Parsec
+import qualified Text.Parsec as Parsec 
 import Text.Parsec ((<?>))
 import Control.Applicative
 import Control.Monad.Identity (Identity)
@@ -46,7 +46,7 @@ main = do
 
     let
         {-- Part 1 Using Parser Combinators --}
-        ans = parse searchMultP2$ Text.unpack contents ++ "\\end"
+        ans = parse searchMultP2 $ Text.unpack contents ++ "\\end"
         Right response = ans
         part1_answer = computeScore2 DO response
 
