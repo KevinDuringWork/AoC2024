@@ -16,9 +16,8 @@ inGrid grid (y2, x2) (y,x) =
     y+y2 >= 0 && y+y2 < height &&
     x+x2 >= 0 && x+x2 < width
     where
-        height   = length grid
-        width    = length $ head grid
-
+        (height, width) = (length grid, length $ head grid)
+         
 generateDirections :: Coordinate -> Grid -> [Direction]
 generateDirections coordinate grid = filter
     (\(y2,x2) -> inGrid grid (y2, x2) coordinate && (y+y2,x+x2) /= coordinate)
@@ -37,34 +36,36 @@ searchCount grid direction expectedValue coordinate =
         if
            | evs == "" -> 1
            | direction == (0,0) -> 
-                sum $ fmap (\(y1,x1) -> searchCount grid (y1, x1) evs (y+y1, x+x1)) (generateDirections (y,x) grid)
+                sum $ fmap (\(y1,x1) -> searchCount grid (y1, x1) evs (y+y1, x+x1)) 
+                (generateDirections (y,x) grid)
            | inGrid grid direction coordinate -> searchCount grid direction evs (y+y1, x+x1)
            | otherwise -> 0)
     else 0
     where
         gv       = gridValue grid coordinate
-        (y,  x)  = coordinate
+        (y,   x) = coordinate
         (y1, x1) = direction
         (ev:evs) = expectedValue
 
 {-- Part (2) Hardcoding all rotations of X MAS --}
 searchCount2 :: Grid -> Coordinate -> Bool
 searchCount2 grid coordinate =
-    if  | bounds && gv center == 'A' && gv tl == 'M' && gv tr == 'M' && gv bl == 'S' && gv br == 'S' -> True
-        | bounds && gv center == 'A' && gv tl == 'S' && gv tr == 'M' && gv bl == 'S' && gv br == 'M' -> True
-        | bounds && gv center == 'A' && gv tl == 'S' && gv tr == 'S' && gv bl == 'M' && gv br == 'M' -> True
-        | bounds && gv center == 'A' && gv tl == 'M' && gv tr == 'S' && gv bl == 'M' && gv br == 'S' -> True
+    if  | bounds && gv tl == 'M' && gv tr == 'M' && gv bl == 'S' && gv br == 'S' -> True
+        | bounds && gv tl == 'S' && gv tr == 'M' && gv bl == 'S' && gv br == 'M' -> True
+        | bounds && gv tl == 'S' && gv tr == 'S' && gv bl == 'M' && gv br == 'M' -> True
+        | bounds && gv tl == 'M' && gv tr == 'S' && gv bl == 'M' && gv br == 'S' -> True
         | otherwise -> False
     where
-        ig      = inGrid grid (0,0)
-        gv      = gridValue grid
-        (y, x)  = coordinate
-        tl      = (y,  x)
-        tr      = (y, x +2)
-        center  = (y+1, x+1)
-        bl      = (y+2, x)
-        br      = (y+2, x+2)
-        bounds  = ig center && ig tl && ig tr && ig bl && ig br
+        (y, x)    = coordinate
+        ig        = inGrid grid (0,0)
+        gv        = gridValue grid
+        (tl, tr)  = ((y,x),      (y,x+2))
+        (bl, br)  = ((y+2,x), (y+2, x+2))
+        center    = (y+1, x+1)
+        bounds    = (ig tl && ig tr) && 
+                    (ig bl && ig br) && 
+                    ig center && 
+                    gv center == 'A' 
 
 main :: IO()
 main = do
